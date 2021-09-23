@@ -20,27 +20,27 @@ namespace Com.RogerioLima.ARPaint
 
          public bool CanExecute()
         {
-            if(drawLineCommand.lineDrawing.Count>0)
-            {
-                Debug.Log("READY TO SAVE DRAWING");
-                return true;
-            }
-            else
-            {
-                Debug.Log("No drawing to save");
+            // if(drawLineCommand.lineDrawing.Count>0)
+            // {
+            //     Debug.Log("READY TO SAVE DRAWING");
+            //     return true;
+            // }
+            // else
+            // {
+            //     Debug.Log("No drawing to save");
                 return false;
-            }
+            // }
         }
 
         public void Execute()
         {
-            Debug.Log("FILE PATH: "+ path);
-            path =  Application.persistentDataPath+"/arDrawings.dat";
-            BinaryFormatter formatter = new BinaryFormatter();
-            FileStream file = File.Create(path);
-            formatter.Serialize(file, drawLineCommand.lineDrawing);
-            file.Close();
-            Debug.Log("OBJECT SAVED WITH SUCCESS");
+            // Debug.Log("FILE PATH: "+ path);
+            // path =  Application.persistentDataPath+"/arDrawings.dat";
+            // BinaryFormatter formatter = new BinaryFormatter();
+            // FileStream file = File.Create(path);
+            // formatter.Serialize(file, drawLineCommand.lineDrawing);
+            // file.Close();
+            // Debug.Log("OBJECT SAVED WITH SUCCESS");
         }
 
         public void Undo()

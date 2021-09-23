@@ -9,19 +9,39 @@ namespace Com.RogerioLima.ARPaint
     {
         
         [SerializeField]
-        private GameObject colorPanel, brushSizePanel, settingsPanel;
+        private GameObject colorPanel, brushSizePanel, settingsPanel, loadDrawingPanel,saveDrawingPanel;
         [SerializeField] Image menuBtnImage;
         [SerializeField] List<Sprite> menuSprites;
         [SerializeField] DrawLineCommand drawLineCommand;
 
+        private List<GameObject> allPanels;
+
         private bool panelOpen;
         
+
         
         // Start is called before the first frame update
         void Start()
         {
             panelOpen = true;
             drawLineCommand.canDraw = false;
+            allPanels = new List<GameObject>();
+            allPanels.Add(loadDrawingPanel);
+            allPanels.Add(colorPanel);
+            allPanels.Add(brushSizePanel);
+            allPanels.Add(settingsPanel);
+            allPanels.Add(saveDrawingPanel);
+
+            if(loadDrawingPanel.activeInHierarchy == true)
+            {
+                loadDrawingPanel.SetActive(false);
+            }
+
+            if(saveDrawingPanel.activeInHierarchy == true)
+            {
+                saveDrawingPanel.SetActive(false);
+            }
+
 
             if(colorPanel.activeInHierarchy == true)
             {
@@ -75,6 +95,29 @@ namespace Com.RogerioLima.ARPaint
 
         }
 
+        public void DisableLoadDrawingPanel()
+        {
+            loadDrawingPanel.SetActive(false);
+            drawLineCommand.canDraw = true;
+  
+        }
+
+        public void EnableLoadDrawingPanel()
+        {
+            if(loadDrawingPanel.activeInHierarchy == false)
+            {
+                loadDrawingPanel.SetActive(true);
+                drawLineCommand.canDraw = false;
+   
+            }
+            else
+            {
+                loadDrawingPanel.SetActive(false);
+                drawLineCommand.canDraw = true;
+  
+            }
+        }
+
         public void ActivateSettingsPanel()
         {
             if(panelOpen == false)
@@ -85,13 +128,13 @@ namespace Com.RogerioLima.ARPaint
             }
             else
             {
-                settingsPanel.SetActive(false);
-                colorPanel.SetActive(false);
-                brushSizePanel.SetActive(false);
+                foreach(GameObject g in allPanels)
+                {
+                    g.SetActive(false);
+                }
                 menuBtnImage.sprite = menuSprites[1];
                 drawLineCommand.canDraw = true;
             }
-
             panelOpen = !panelOpen;
 
         }
