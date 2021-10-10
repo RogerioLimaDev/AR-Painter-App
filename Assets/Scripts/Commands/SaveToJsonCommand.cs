@@ -13,124 +13,146 @@ namespace Com.RogerioLima.ARPaint
     {
         [SerializeField] CommandManager commandManager;
         [SerializeField] DrawLineCommand drawLineCommand;
-        [SerializeField] LoadFromJsonCommand LoadFromJson;
+        [SerializeField] DrawOnPlaneCommand drawOnPlaneCommand;
+        [SerializeField] LineSettingsCommand lineSettingsCommand;
+        [SerializeField] SavedDrawingsManager savedDrawings;
+        // [SerializeField] PanelsController panelsController;
+        [SerializeField] newUIController newUiController;
         List<LineProperties> newDraw;
         LineProperties newLine;
-
         [SerializeField] InputField drawNameInput;
-        [SerializeField] GameObject drawNameBtn, nameButtonsPanel, drawNamePanel,saveDrawingBtn,saveAsBtn;
         [SerializeField] Text drawNameInputText;
         [SerializeField] Transform drawNameBtnParent;
         private string drawName;
-        private int linesToSaveAs;
+        public int totalLines;
 
         void Start()
         {
-            nameButtonsPanel.SetActive(false);
-            drawNamePanel.SetActive(false);
             newDraw = new List<LineProperties>();
         }
 
-        public void SaveDrawingToJson()
+        //Save the latest drawing and clear collection
+        public void SaveNewDraw()
         {
-            drawNamePanel.SetActive(false);
-            commandManager.Invoke(this);   
+            commandManager.Invoke(this);
+            
         }
 
-        public void ActivateSaveDrawingPanel()
+        //Save all lines on the screen and clear collection
+        public void SaveDrawAs()
         {
-            drawNamePanel.SetActive(true);
-            if(saveDrawingBtn.activeInHierarchy == false)
-            {
-                saveDrawingBtn.SetActive(true);
-                saveAsBtn.SetActive(false);
-            }
-            else if(saveAsBtn.activeInHierarchy == true)
-            {
-                saveAsBtn.SetActive(false);
-                saveDrawingBtn.SetActive(true);
-            }
-        }
-
-        public void ActivateSaveAsDrawingPanel()
-        {
-            drawNamePanel.SetActive(true);
-            if(saveDrawingBtn.activeInHierarchy == true)
-            {
-                saveDrawingBtn.SetActive(false);
-                saveAsBtn.SetActive(true);
-            }
-            else if(saveAsBtn.activeInHierarchy == false)
-            {
-                saveAsBtn.SetActive(true);
-                saveDrawingBtn.SetActive(false);
-            }
+            SetDrawingName();
+            GetLinesToSave();
+            commandManager.Invoke(this);
         }
 
         public bool CanExecute()
         {
-            if(drawLineCommand.currentLinePositions.Count > 0)
-            {
-                return true;
-            }
-            else
-            {
-                Debug.Log("NO DRAW TO SERIALIZE TO JSON");
-                return false;
-            }
+            return true;
         }
 
-         public void SetDrawingNameAsTyped()
-        {
-            drawName = drawNameInput.text;
-        }
-        
-        public void SetDrawingName()
-        {
-            drawName = drawNameInput.text;
-            drawNameInputText.text = "";
-        }
-
+        //Save drawings to a JSON file
         public void Execute()
         {
             NewDrawing drawingToSave = new NewDrawing();
             drawingToSave.newDrawing = newDraw;
+
             string json = JsonUtility.ToJson(drawingToSave);
-            // Debug.Log(json.ToUpper());
             string path =Application.persistentDataPath + "/"+drawName+".json";
             File.WriteAllText(path, json);
-            InstantiateDrawNameBtn();
-            PlayerPrefs.SetString(drawName,path);
-            nameButtonsPanel.SetActive(true);
+
+            savedDrawings.CheckSavedFiles(drawName);
+
+            // panelsController.EnableLoadDrawingPanel();
+            newUiController.EnableLoadPanel();
             newDraw.Clear();
         }
 
+        //Called from draw commands
         public void SaveLine()
         {
             InstantiateAndPopulateLineProperties();
         }
-
-
-
+        
+        //Called from SaveLine - add lines to the latest drawing
         private void InstantiateAndPopulateLineProperties()
         {
             newLine = new LineProperties();
-            newLine.drawLinePositions = drawLineCommand.currentLinePositions;
-            newLine.lineMaterial = drawLineCommand.materialIndex;
-            newLine.lineStartSize = drawLineCommand.startWidth;
-            newLine.lineEndSize = drawLineCommand.endWidth;
-            newLine.lineStartColor = drawLineCommand.startColor;
-            newLine.lineEndColor = drawLineCommand.endColor;
-            Debug.Log("NEW LINE POPULATED");
-            NewDraw(newLine);
+            string activeCommand = "";
+            int activeCount;
+
+            if(drawLineCommand.enabled==true)
+            {
+                newLine.drawLinePositions = CopyList(drawLineCommand.currentLinePositions);
+                // activeCount = newLine.drawLinePositions.Count;
+                activeCommand = "DRAW LINE";
+            }
+
+            if(drawOnPlaneCommand.enabled==true)
+            {
+                newLine.drawLinePositions = CopyList(drawOnPlaneCommand.currentLinePositions);
+                // activeCount = newLine.drawLinePositions.Count;
+                activeCommand = "DRAW LINE ON PLANE";
+            }
+
+            activeCount = newLine.drawLinePositions.Count;
+
+            newLine.lineMaterial = lineSettingsCommand.materialIndex;
+            newLine.lineStartSize = lineSettingsCommand.startWidth;
+            newLine.lineEndSize = lineSettingsCommand.endWidth;
+            newLine.lineStartColor = lineSettingsCommand.startColor;
+            newLine.lineEndColor = lineSettingsCommand.endColor;
+            newDraw.Add(newLine);
+
+            Debug.Log("PTS POSITIONS COUNTFROM "+activeCommand+"is: "+activeCount);
+            Debug.Log("LINE SAVED FROM "+activeCommand);
+
+            // Debug.Log("NEW LINE POPULATED");
+            // NewDraw(newLine);
         }
 
+        private List<Vector3> CopyList(List<Vector3> source)
+        {
+            List<Vector3> destination = new List<Vector3>();
+            for(int i = 0; i< source.Count; i++)
+            {
+                destination.Add(source[i]);
+            }
+            return destination;
+        }
 
+        //grab all lines on the screen
+        private void GetLinesToSave()
+        {
+            GameObject[] screenLines = GameObject.FindGameObjectsWithTag("original");
+            GameObject[] drawLines = GameObject.FindGameObjectsWithTag("loaded");
+            totalLines = screenLines.Length  + drawLines.Length;
 
-        public void SaveLineAs(GameObject go)
+            if(screenLines.Length>0)
+            {
+                foreach(GameObject go in screenLines)
+                {
+                    SaveLineAs(go);
+                    Debug.Log("SALVEI UMA SCREEN LINE");
+                }
+            }
+                // noDrawing = true;
+            
+            if (drawLines.Length>0)
+            {
+                foreach(GameObject go in drawLines)
+                {
+                    SaveLineAs(go);
+                    Debug.Log("SALVEI UMA DRAWLINE");
+                }
+            }
+        }
+        //extract properties from the lines on the screen
+        private void SaveLineAs(GameObject go)
         {
             LineRenderer line = go.GetComponent<LineRenderer>();
             newLine = new LineProperties();
+
             List<Vector3> l_positions = new List<Vector3>();
             for(int i = 0; i<line.positionCount; i++)
             {
@@ -139,10 +161,10 @@ namespace Com.RogerioLima.ARPaint
             }
             newLine.drawLinePositions = l_positions;
 
-            for(int i = 0; i<drawLineCommand.brushMaterials.Length; i++)
+            for(int i = 0; i<lineSettingsCommand.brushMaterials.Length; i++)
             {
                 Material currentMaterial = line.material;
-                if(currentMaterial == drawLineCommand.brushMaterials[i])
+                if(currentMaterial == lineSettingsCommand.brushMaterials[i])
                 {
                     newLine.lineMaterial = i;
                 }
@@ -152,35 +174,27 @@ namespace Com.RogerioLima.ARPaint
             newLine.lineEndSize = line.endWidth;
             newLine.lineStartColor = line.startColor;
             newLine.lineEndColor = line.endColor;
-            NewDraw(newLine);
-        }
-
-
-        private void NewDraw(LineProperties newLine)
-        {
             newDraw.Add(newLine);
-            Debug.Log("ATÉ AGORA O DESENHO TEM "+newDraw.Count+" LINHAS");
-            if(newDraw.Count == drawLineCommand.totalLines)
-            {
-                commandManager.Invoke(this);
-            }
         }
-
-        private void InstantiateDrawNameBtn()
+        //Set the drawname string as typed on the UI
+         public void SetDrawingNameAsTyped()
         {
-            GameObject currentDrawNameBtn = Instantiate(drawNameBtn, gameObject.transform.position,Quaternion.identity);
-            Text drawNametext = currentDrawNameBtn.GetComponentInChildren<Text>();
-            drawNametext.text = drawName;
-            currentDrawNameBtn.transform.SetParent(drawNameBtnParent);
+            drawName = drawNameInput.text;
         }
-
-
+        //Set the drawname string when button pressed
+        public void SetDrawingName()
+        {
+            drawName = drawNameInput.text;
+        }
+        
+        //Not implemented yet
         public void Undo()
         {
             throw new System.NotImplementedException();
         }
-
+    
     }
+    
 
     [Serializable]
     public class LineProperties
@@ -199,6 +213,7 @@ namespace Com.RogerioLima.ARPaint
     {
         public List<LineProperties> newDrawing = new List<LineProperties>();
     }
+
 
 }
 

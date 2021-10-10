@@ -12,18 +12,24 @@ namespace Com.RogerioLima.ARPaint
     public class DrawOnPlaneCommand : MonoBehaviour, ICommand
     {
     #region variables
-        [SerializeField] Text notifications,infos, features;
+        //[SerializeField] Text notifications,infos, features;
         [SerializeField] ARPointCloudManager mPointCloudManager;
         [SerializeField] GameObject lineRendererObject;
         [SerializeField] CommandManager commandManager;
+        [SerializeField] LineSettingsCommand lineSettingsCommand;
+        [SerializeField] SaveToJsonCommand saveToJson;
+
+
         // private Vector3 lastCursorPosition;
         private int mCurrentTrackedFeatureCount = 1000;
         private float timeOfLastPtCloudUpdate;
         static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
+        public List<Vector3> currentLinePositions;
         public ARRaycastManager m_RaycastManager;
         bool reticleStarted = false;
         [HideInInspector]
         public LineRenderer currentLine;
+        public bool canDraw;
         int currentLinePointNumber;
         bool isPainting;
         bool touchBegan;
@@ -34,7 +40,12 @@ namespace Com.RogerioLima.ARPaint
     #region iCommand implementation
         public bool CanExecute()
         {
-            return true;
+            if(canDraw == true)
+            {
+               return true;
+            }
+            
+            return false;
         }
         public void Undo()
         {
@@ -43,7 +54,22 @@ namespace Com.RogerioLima.ARPaint
 
         public void Execute()
         {
-            GrabPositionOnPlane();
+            if (Input.GetTouch(0).phase == TouchPhase.Began)
+                {
+                    touchBegan = true;
+                    isPainting = true;
+                }
+                else if(Input.GetTouch(0).phase == TouchPhase.Ended)
+                {
+                    //Save each line and add to a draw collection for recovery
+                    saveToJson.SaveLine();
+                    isPainting = false;
+                }
+
+                if(isPainting == true)
+                {
+                    GrabPositionOnPlane();  
+                }
         }
 
     #endregion
@@ -53,7 +79,6 @@ namespace Com.RogerioLima.ARPaint
             Ray rayOrigin = Camera.main.ScreenPointToRay(Input.mousePosition);
             // bool b_raycast = m_RaycastManager.Raycast(rayOrigin, s_Hits, TrackableType.FeaturePoint);
             bool b_raycast = m_RaycastManager.Raycast(rayOrigin, s_Hits, TrackableType.PlaneEstimated);
-            features.text = "Hits count: "+s_Hits.Count;
 
             //If a position on a plane was detected start drawing
             if (b_raycast)
@@ -61,7 +86,6 @@ namespace Com.RogerioLima.ARPaint
                 if(s_Hits.Count > 0)
                 {
                     var targetPose = s_Hits[0].pose;
-                    infos.text= targetPose.position.x.ToString();
                     op1 = new Vector3();
                     op1 = targetPose.position;
 
@@ -73,7 +97,7 @@ namespace Com.RogerioLima.ARPaint
             }
             else
             {
-                infos.text= "No target pose yet".ToUpper();
+                Debug.Log("No target pose yet".ToUpper());
             }
 
             //Touch already began so keep drawing
@@ -88,28 +112,33 @@ namespace Com.RogerioLima.ARPaint
             currentLine.positionCount = currentLinePointNumber + 1;
             //Set the vector3 to the position index
             currentLine.SetPosition(currentLinePointNumber, position);
+            //Save position to a collection
+            currentLinePositions.Add(position);
             //Increase the point
             currentLinePointNumber++;
         }
 
         void StartLineOnPlane(Vector3 l_position)
         {
+            //Clear last line
+            currentLinePositions.Clear();
+            //reset initial point
+            currentLinePointNumber = 0;
             //Instantiate a line object and get the line component
             GameObject emptyGameObject = Instantiate(lineRendererObject, l_position, Quaternion.identity);
             currentLine = emptyGameObject.GetComponent(typeof(LineRenderer)) as LineRenderer;
-
             //Set the received position to the starting point of the line
             currentLine.SetPosition(currentLinePointNumber, l_position);
-
+            currentLinePositions.Add(l_position);
             //Set the line properties
             currentLine.numCapVertices = 3;
             currentLine.numCornerVertices = 5;
-            currentLine.startWidth = 0.0001f;
-            currentLine.endWidth = 0.01f;
-            currentLine.startColor = Color.red;
-            currentLine.endColor = Color.yellow;
+            currentLine.material = lineSettingsCommand.currentMaterial;
+            currentLine.startWidth = lineSettingsCommand.startWidth;
+            currentLine.endWidth = lineSettingsCommand.endWidth;
+            currentLine.startColor = lineSettingsCommand.startColor;
+            currentLine.endColor = lineSettingsCommand.endColor;
             touchBegan = false;
-            
             //Reset the point number to the next drawing
             currentLinePointNumber = 0;
         }
@@ -119,25 +148,9 @@ namespace Com.RogerioLima.ARPaint
         {
             if(Input.touchCount>0)
             {
-                if (Input.GetTouch(0).phase == TouchPhase.Began)
-                {
-                    touchBegan = true;
-                    isPainting = true;
-                }
-                else if(Input.GetTouch(0).phase == TouchPhase.Ended)
-                {
-                    isPainting = false;
-                }
-
-                if(isPainting == true)
-                {
-                    commandManager.Invoke(this);
-                }
-                
+                commandManager.Invoke(this);
             }
-
-            notifications.text = "IS PAINTING: "+isPainting;
-
+            // notifications.text = "IS PAINTING: "+isPainting;
         }
 
         void Start()
@@ -148,6 +161,7 @@ namespace Com.RogerioLima.ARPaint
             currentLinePointNumber = 0;
 
         }
+    
     #endregion
 //Not used on the script
         private void OnPointCloudChanged(ARPointCloudChangedEventArgs eventargs)
@@ -170,6 +184,7 @@ namespace Com.RogerioLima.ARPaint
                 }
             }
         }
+    
     }
 
 }

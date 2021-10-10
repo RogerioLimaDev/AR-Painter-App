@@ -216,6 +216,7 @@ GameObject:
   - component: {fileID: 9251616}
   - component: {fileID: 9251621}
   - component: {fileID: 9251622}
+  - component: {fileID: 9251619}
   m_Layer: 0
   m_Name: CommandManager
   m_TagString: Untagged
@@ -271,6 +272,8 @@ MonoBehaviour:
     lineEndColor: {r: 0, g: 0, b: 0, a: 0}
   canDraw: 0
   currentLine: {fileID: 0}
+  totalLines: 0
+  noDrawing: 0
   currentLinePositions: []
   lineDrawing: []
   lineRenderers: []
@@ -300,6 +303,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9251619
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9251615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 663c0706aea12427883d0da3361dd171, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawLineCommand: {fileID: 9251616}
+  commandManager: {fileID: 9251617}
+  noDrawing: 0
 --- !u!114 &9251621
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,8 +338,6 @@ MonoBehaviour:
     type: 3}
   nameButtonsPanel: {fileID: 864421162}
   drawNamePanel: {fileID: 2129641050}
-  saveDrawingBtn: {fileID: 495521723}
-  saveAsBtn: {fileID: 250405454}
   drawNameInputText: {fileID: 1911976583}
   drawNameBtnParent: {fileID: 1876477974}
 --- !u!114 &9251622
@@ -336,7 +352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc8d0aaa3049b44c299d7af5bf316db5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loadDrawingPanel: {fileID: 864421162}
+  panelsController: {fileID: 1899577671}
   drawLineObject: {fileID: 6386662562516444056, guid: ec807ea16ae2a4187af5731713a0ed0d,
     type: 3}
   drawLine: {fileID: 9251616}
@@ -533,9 +549,9 @@ RectTransform:
   m_Father: {fileID: 1938389413}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 671.1101, y: -176.93732}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 89.3484, y: 89.3484}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &119485342
@@ -1425,7 +1441,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -1501,9 +1517,9 @@ RectTransform:
   m_Father: {fileID: 1938389413}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 77.83728, y: -176.93732}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 89.3484, y: 89.3484}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &411361834
@@ -1636,9 +1652,9 @@ RectTransform:
   m_Father: {fileID: 18987681}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 433.801, y: -771.58734}
   m_SizeDelta: {x: 533.8, y: 773.6037}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &469315495
@@ -1855,7 +1871,7 @@ GameObject:
   - component: {fileID: 540059672}
   m_Layer: 2
   m_Name: BrushSizePanel
-  m_TagString: Untagged
+  m_TagString: uiPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2519,11 +2535,11 @@ GameObject:
   - component: {fileID: 864421163}
   m_Layer: 2
   m_Name: LoadDrawingPanel
-  m_TagString: Untagged
+  m_TagString: uiPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &864421163
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2538,7 +2554,7 @@ RectTransform:
   - {fileID: 1359685543}
   - {fileID: 18987681}
   m_Father: {fileID: 1109076886}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3113,9 +3129,9 @@ RectTransform:
   m_Father: {fileID: 1938389413}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 552.45557, y: -176.93732}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 89.3484, y: 89.3484}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1041520748
@@ -3162,8 +3178,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 9251621}
-        m_TargetAssemblyTypeName: Com.RogerioLima.ARPaint.SaveToJsonCommand, Assembly-CSharp
+      - m_Target: {fileID: 1899577671}
+        m_TargetAssemblyTypeName: Com.RogerioLima.ARPaint.PanelsController, Assembly-CSharp
         m_MethodName: ActivateSaveAsDrawingPanel
         m_Mode: 1
         m_Arguments:
@@ -3458,9 +3474,9 @@ RectTransform:
   - {fileID: 540059670}
   - {fileID: 1938389413}
   - {fileID: 1739295962}
-  - {fileID: 1600857343}
   - {fileID: 2129641051}
   - {fileID: 864421163}
+  - {fileID: 1600857343}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3503,9 +3519,9 @@ RectTransform:
   m_Father: {fileID: 1938389413}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 196.49185, y: -176.93732}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 89.3484, y: 89.3484}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1109596732
@@ -3735,7 +3751,7 @@ GameObject:
   - component: {fileID: 1163724098}
   m_Layer: 2
   m_Name: ColorPicker_panel
-  m_TagString: Untagged
+  m_TagString: uiPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5471,9 +5487,9 @@ RectTransform:
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 20, y: 0}
+  m_SizeDelta: {x: 20, y: -17}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1558745562
 MonoBehaviour:
@@ -5721,7 +5737,7 @@ RectTransform:
   m_Children:
   - {fileID: 825480879}
   m_Father: {fileID: 1109076886}
-  m_RootOrder: 4
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
@@ -5935,9 +5951,9 @@ RectTransform:
   m_Father: {fileID: 1938389413}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 315.14642, y: -176.93732}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 89.3484, y: 89.3484}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1620963568
@@ -6067,7 +6083,7 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -6347,9 +6363,9 @@ RectTransform:
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: -17, y: -17}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1699314999
 MonoBehaviour:
@@ -6415,11 +6431,11 @@ GameObject:
   - component: {fileID: 1739295963}
   m_Layer: 2
   m_Name: Material name
-  m_TagString: Untagged
+  m_TagString: uiPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1739295962
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7107,11 +7123,21 @@ MonoBehaviour:
   settingsPanel: {fileID: 1938389412}
   loadDrawingPanel: {fileID: 864421162}
   saveDrawingPanel: {fileID: 2129641050}
+  saveDrawingBtn: {fileID: 495521723}
+  drawNamePanel: {fileID: 2129641050}
+  saveAsBtn: {fileID: 250405454}
   menuBtnImage: {fileID: 1600857345}
   menuSprites:
   - {fileID: 21300000, guid: 9a73e0b527cff4f67adf2e37e73bd176, type: 3}
   - {fileID: 21300000, guid: ce9f1e3a258e247a8a23fe789ad341b2, type: 3}
   drawLineCommand: {fileID: 9251616}
+  uiPanels:
+  - {fileID: 1163724096}
+  - {fileID: 540059669}
+  - {fileID: 1938389412}
+  - {fileID: 1739295961}
+  - {fileID: 2129641050}
+  - {fileID: 864421162}
 --- !u!4 &1899577672
 Transform:
   m_ObjectHideFlags: 0
@@ -7315,9 +7341,9 @@ RectTransform:
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 20}
+  m_SizeDelta: {x: -17, y: 20}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1922750714
 MonoBehaviour:
@@ -7362,7 +7388,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1624484810}
   m_HandleRect: {fileID: 1624484809}
   m_Direction: 0
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -7420,11 +7446,11 @@ GameObject:
   - component: {fileID: 1938389414}
   m_Layer: 2
   m_Name: SettingsPanel
-  m_TagString: Untagged
+  m_TagString: uiPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1938389413
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7624,9 +7650,9 @@ RectTransform:
   m_Father: {fileID: 1938389413}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 789.76465, y: -176.93732}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 89.3484, y: 89.3484}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1999809301
@@ -7673,8 +7699,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 9251616}
-        m_TargetAssemblyTypeName: Com.RogerioLima.ARPaint.DrawLineCommand, Assembly-CSharp
+      - m_Target: {fileID: 9251619}
+        m_TargetAssemblyTypeName: Com.RogerioLima.ARPaint.DeleteLinesCommand, Assembly-CSharp
         m_MethodName: ClearDrawings
         m_Mode: 1
         m_Arguments:
@@ -7757,9 +7783,9 @@ RectTransform:
   m_Father: {fileID: 1938389413}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 433.801, y: -176.93732}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 89.3484, y: 89.3484}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2072555957
@@ -7806,8 +7832,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 9251621}
-        m_TargetAssemblyTypeName: Com.RogerioLima.ARPaint.SaveToJsonCommand, Assembly-CSharp
+      - m_Target: {fileID: 1899577671}
+        m_TargetAssemblyTypeName: Com.RogerioLima.ARPaint.PanelsController, Assembly-CSharp
         m_MethodName: ActivateSaveDrawingPanel
         m_Mode: 1
         m_Arguments:
@@ -7951,7 +7977,7 @@ GameObject:
   - component: {fileID: 2129641052}
   m_Layer: 2
   m_Name: SaveDrawingPanel
-  m_TagString: Untagged
+  m_TagString: uiPanel
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7969,7 +7995,7 @@ RectTransform:
   m_Children:
   - {fileID: 1038728339}
   m_Father: {fileID: 1109076886}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}

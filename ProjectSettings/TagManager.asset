@@ -6,6 +6,7 @@ TagManager:
   tags:
   - original
   - loaded
+  - uiPanel
   layers:
   - Default
   - TransparentFX

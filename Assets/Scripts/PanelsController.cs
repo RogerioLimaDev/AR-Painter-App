@@ -9,48 +9,39 @@ namespace Com.RogerioLima.ARPaint
     {
         
         [SerializeField]
-        private GameObject colorPanel, brushSizePanel, settingsPanel, loadDrawingPanel,saveDrawingPanel;
+        private GameObject colorPanel, brushSizePanel,
+                             settingsPanel, loadDrawingPanel,
+                             panelDrawingsToLoad,saveDrawingPanel,
+                             saveDrawingBtn,saveAsBtn;
         [SerializeField] Image menuBtnImage;
         [SerializeField] List<Sprite> menuSprites;
         [SerializeField] DrawLineCommand drawLineCommand;
+        [SerializeField] DrawOnPlaneCommand drawOnPlaneCommand;
+        [SerializeField] SavedDrawingsManager savedDrawingsManager;
 
-        private List<GameObject> allPanels;
-
-        private bool panelOpen;
-        
-
+        [SerializeField] private GameObject[] uiPanels;
+    
         
         // Start is called before the first frame update
         void Start()
         {
-            panelOpen = true;
-            drawLineCommand.canDraw = false;
-            allPanels = new List<GameObject>();
-            allPanels.Add(loadDrawingPanel);
-            allPanels.Add(colorPanel);
-            allPanels.Add(brushSizePanel);
-            allPanels.Add(settingsPanel);
-            allPanels.Add(saveDrawingPanel);
-
-            if(loadDrawingPanel.activeInHierarchy == true)
+            if(drawOnPlaneCommand!=null)
             {
-                loadDrawingPanel.SetActive(false);
+                drawOnPlaneCommand.canDraw = false;
             }
-
-            if(saveDrawingPanel.activeInHierarchy == true)
+            if(drawLineCommand!=null)
             {
-                saveDrawingPanel.SetActive(false);
+                drawLineCommand.canDraw = false;
             }
+            
+            Debug.Log(uiPanels[1].name);
 
-
-            if(colorPanel.activeInHierarchy == true)
+            foreach(GameObject go in uiPanels)
             {
-                colorPanel.SetActive(false);
-            }
-
-            if(brushSizePanel.activeInHierarchy == true)
-            {
-                brushSizePanel.SetActive(false);
+                if(go.activeInHierarchy == true)
+                {
+                    go.SetActive(false);
+                }
             }
 
             if(settingsPanel.activeInHierarchy == false)
@@ -58,6 +49,8 @@ namespace Com.RogerioLima.ARPaint
                 settingsPanel.SetActive(true);
                 menuBtnImage.sprite = menuSprites[0];
             }
+
+            panelDrawingsToLoad.SetActive(true);
         }
 
         public void ActivateSetColorPanel()
@@ -98,7 +91,7 @@ namespace Com.RogerioLima.ARPaint
         public void DisableLoadDrawingPanel()
         {
             loadDrawingPanel.SetActive(false);
-            drawLineCommand.canDraw = true;
+            panelDrawingsToLoad.SetActive(false);
   
         }
 
@@ -107,36 +100,94 @@ namespace Com.RogerioLima.ARPaint
             if(loadDrawingPanel.activeInHierarchy == false)
             {
                 loadDrawingPanel.SetActive(true);
-                drawLineCommand.canDraw = false;
-   
+
+                if(saveDrawingPanel.activeInHierarchy == true)
+                {
+                    saveDrawingPanel.SetActive(false);
+                }
             }
             else
             {
-                loadDrawingPanel.SetActive(false);
-                drawLineCommand.canDraw = true;
-  
+                DisableLoadDrawingPanel();
             }
+
+            savedDrawingsManager.CheckSavedFiles("");
+
         }
 
         public void ActivateSettingsPanel()
         {
-            if(panelOpen == false)
+            if(settingsPanel.activeInHierarchy == false)
             {
                 settingsPanel.SetActive(true);
                 menuBtnImage.sprite = menuSprites[0];
-                drawLineCommand.canDraw = false;
+                if(drawOnPlaneCommand!=null)
+                {
+                    drawOnPlaneCommand.canDraw = false;
+                }
+                if(drawLineCommand!=null)
+                {
+                    drawLineCommand.canDraw = false;
+                }
             }
             else
             {
-                foreach(GameObject g in allPanels)
+                foreach(GameObject g in uiPanels)
                 {
+                    // Debug.Log(uiPanels.Length);
                     g.SetActive(false);
                 }
                 menuBtnImage.sprite = menuSprites[1];
-                drawLineCommand.canDraw = true;
-            }
-            panelOpen = !panelOpen;
 
+                if(drawOnPlaneCommand !=null)
+                {
+                    drawOnPlaneCommand.canDraw = true;
+                }
+                if(drawLineCommand!=null)
+                {
+                    drawLineCommand.canDraw = true;
+                }
+                settingsPanel.SetActive(false);
+            }
+        }
+    
+        public void ActivateSaveDrawingPanel()
+        {
+            saveDrawingPanel.SetActive(true);
+            drawLineCommand.canDraw = false;
+
+            if(saveDrawingBtn.activeInHierarchy == false)
+            {
+                saveDrawingBtn.SetActive(true);
+                saveAsBtn.SetActive(false);
+            }
+            else if(saveAsBtn.activeInHierarchy == true)
+            {
+                saveAsBtn.SetActive(false);
+                saveDrawingBtn.SetActive(true);
+            }
+
+            if(loadDrawingPanel.activeInHierarchy == true)
+            {
+                DisableLoadDrawingPanel();
+            }
+        }
+
+        public void ActivateSaveAsDrawingPanel()
+        {
+            saveDrawingPanel.SetActive(true);
+            drawLineCommand.canDraw = false;
+
+            if(saveDrawingBtn.activeInHierarchy == true)
+            {
+                saveDrawingBtn.SetActive(false);
+                saveAsBtn.SetActive(true);
+            }
+            else if(saveAsBtn.activeInHierarchy == false)
+            {
+                saveAsBtn.SetActive(true);
+                saveDrawingBtn.SetActive(false);
+            }
         }
     }
     
